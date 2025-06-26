@@ -1,12 +1,25 @@
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Plus, Menu, User } from 'lucide-react';
+import { Plus, Menu, User, Home, CreditCard, PieChart, FileText, Settings } from 'lucide-react';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { AddTransactionDialog } from './AddTransactionDialog';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 export function Header() {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const menuItems = [
+    { icon: Home, label: 'Dashboard', path: '/' },
+    { icon: CreditCard, label: 'Transações', path: '/transactions' },
+    { icon: PieChart, label: 'Categorias', path: '/categories' },
+    { icon: FileText, label: 'Relatórios', path: '/reports' },
+    { icon: Settings, label: 'Configurações', path: '/settings' },
+  ];
+
+  const isActivePath = (path: string) => location.pathname === path;
 
   return (
     <>
@@ -23,22 +36,50 @@ export function Header() {
                 <div className="flex flex-col gap-4 mt-6">
                   <h3 className="font-semibold text-lg">OrçaBem</h3>
                   <nav className="flex flex-col gap-2">
-                    <Button variant="ghost" className="justify-start">Dashboard</Button>
-                    <Button variant="ghost" className="justify-start">Transações</Button>
-                    <Button variant="ghost" className="justify-start">Metas</Button>
-                    <Button variant="ghost" className="justify-start">Relatórios</Button>
+                    {menuItems.map((item) => {
+                      const Icon = item.icon;
+                      return (
+                        <Button
+                          key={item.path}
+                          variant={isActivePath(item.path) ? "default" : "ghost"}
+                          className="justify-start"
+                          onClick={() => navigate(item.path)}
+                        >
+                          <Icon className="mr-2 h-4 w-4" />
+                          {item.label}
+                        </Button>
+                      );
+                    })}
                   </nav>
                 </div>
               </SheetContent>
             </Sheet>
             
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('/')}>
               <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center">
                 <span className="text-white font-bold text-sm">O</span>
               </div>
               <h1 className="text-xl font-bold text-gray-900">OrçaBem</h1>
             </div>
           </div>
+
+          {/* Menu Desktop */}
+          <nav className="hidden md:flex items-center gap-4">
+            {menuItems.map((item) => {
+              const Icon = item.icon;
+              return (
+                <Button
+                  key={item.path}
+                  variant={isActivePath(item.path) ? "default" : "ghost"}
+                  className="flex items-center gap-2"
+                  onClick={() => navigate(item.path)}
+                >
+                  <Icon className="h-4 w-4" />
+                  {item.label}
+                </Button>
+              );
+            })}
+          </nav>
 
           <div className="flex items-center gap-3">
             <Button 
