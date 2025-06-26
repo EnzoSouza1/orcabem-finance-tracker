@@ -1,14 +1,14 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Plus, Minus, DollarSign } from 'lucide-react';
+import { useTransactions } from '@/contexts/TransactionContext';
 
 export function FinancialSummary() {
-  // Dados simulados - em uma aplicação real, viriam de uma API ou estado global
-  const summaryData = {
-    totalIncome: 5500.00,
-    totalExpenses: 3200.00,
-    balance: 2300.00,
-  };
+  const { getTotalIncome, getTotalExpenses, getBalance } = useTransactions();
+
+  const totalIncome = getTotalIncome();
+  const totalExpenses = getTotalExpenses();
+  const balance = getBalance();
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -30,10 +30,10 @@ export function FinancialSummary() {
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold text-green-600">
-            {formatCurrency(summaryData.totalIncome)}
+            {formatCurrency(totalIncome)}
           </div>
           <p className="text-xs text-gray-500 mt-1">
-            +12% em relação ao mês passado
+            Total de receitas
           </p>
         </CardContent>
       </Card>
@@ -49,10 +49,10 @@ export function FinancialSummary() {
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold text-red-600">
-            {formatCurrency(summaryData.totalExpenses)}
+            {formatCurrency(totalExpenses)}
           </div>
           <p className="text-xs text-gray-500 mt-1">
-            -5% em relação ao mês passado
+            Total de despesas
           </p>
         </CardContent>
       </Card>
@@ -67,8 +67,8 @@ export function FinancialSummary() {
           </div>
         </CardHeader>
         <CardContent>
-          <div className={`text-2xl font-bold ${summaryData.balance >= 0 ? 'text-blue-600' : 'text-red-600'}`}>
-            {formatCurrency(summaryData.balance)}
+          <div className={`text-2xl font-bold ${balance >= 0 ? 'text-blue-600' : 'text-red-600'}`}>
+            {formatCurrency(balance)}
           </div>
           <p className="text-xs text-gray-500 mt-1">
             Saldo atual disponível

@@ -2,60 +2,15 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Plus, Minus } from 'lucide-react';
-
-interface Transaction {
-  id: string;
-  description: string;
-  amount: number;
-  type: 'income' | 'expense';
-  category: string;
-  date: string;
-}
+import { useTransactions } from '@/contexts/TransactionContext';
+import { useNavigate } from 'react-router-dom';
 
 export function RecentTransactions() {
-  // Dados simulados - em uma aplicação real, viriam de uma API
-  const transactions: Transaction[] = [
-    {
-      id: '1',
-      description: 'Salário mensal',
-      amount: 5500.00,
-      type: 'income',
-      category: 'Salário',
-      date: '2024-01-01',
-    },
-    {
-      id: '2',
-      description: 'Compra no supermercado',
-      amount: 250.00,
-      type: 'expense',
-      category: 'Alimentação',
-      date: '2024-01-02',
-    },
-    {
-      id: '3',
-      description: 'Conta de luz',
-      amount: 120.00,
-      type: 'expense',
-      category: 'Moradia',
-      date: '2024-01-03',
-    },
-    {
-      id: '4',
-      description: 'Freelance design',
-      amount: 800.00,
-      type: 'income',
-      category: 'Freelance',
-      date: '2024-01-04',
-    },
-    {
-      id: '5',
-      description: 'Uber',
-      amount: 35.00,
-      type: 'expense',
-      category: 'Transporte',
-      date: '2024-01-05',
-    },
-  ];
+  const { transactions } = useTransactions();
+  const navigate = useNavigate();
+
+  // Pegar apenas as 5 transações mais recentes
+  const recentTransactions = transactions.slice(0, 5);
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -75,13 +30,13 @@ export function RecentTransactions() {
     <Card className="gradient-card">
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle className="text-lg font-semibold">Transações Recentes</CardTitle>
-        <Button variant="outline" size="sm">
+        <Button variant="outline" size="sm" onClick={() => navigate('/transactions')}>
           Ver todas
         </Button>
       </CardHeader>
       <CardContent>
         <div className="space-y-3">
-          {transactions.map((transaction) => (
+          {recentTransactions.map((transaction) => (
             <div
               key={transaction.id}
               className="flex items-center justify-between p-3 rounded-lg bg-white/50 hover:bg-white/80 transition-colors duration-200"
@@ -100,7 +55,7 @@ export function RecentTransactions() {
                 </div>
                 <div>
                   <p className="font-medium text-gray-900">{transaction.description}</p>
-                  <p className="text-sm text-gray-500">{transaction.category}</p>
+                  <p className="text-sm text-gray-500 capitalize">{transaction.category}</p>
                 </div>
               </div>
               <div className="text-right">

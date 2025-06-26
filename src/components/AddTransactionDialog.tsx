@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Plus, Minus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useTransactions } from '@/contexts/TransactionContext';
 
 interface AddTransactionDialogProps {
   open: boolean;
@@ -20,6 +21,7 @@ export function AddTransactionDialog({ open, onOpenChange }: AddTransactionDialo
   const [amount, setAmount] = useState('');
   const [category, setCategory] = useState('');
   const { toast } = useToast();
+  const { addTransaction } = useTransactions();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,8 +35,23 @@ export function AddTransactionDialog({ open, onOpenChange }: AddTransactionDialo
       return;
     }
 
-    // Aqui você adicionaria a lógica para salvar a transação
-    console.log('Nova transação:', { type, description, amount, category });
+    const numericAmount = parseFloat(amount);
+    if (isNaN(numericAmount) || numericAmount <= 0) {
+      toast({
+        title: "Erro",
+        description: "Por favor, insira um valor válido.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Adicionar a transação usando o contexto
+    addTransaction({
+      type,
+      description,
+      amount: numericAmount,
+      category,
+    });
     
     toast({
       title: "Sucesso!",

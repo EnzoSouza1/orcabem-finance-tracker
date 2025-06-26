@@ -5,42 +5,15 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Plus, Minus, Search, Filter } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
-
-interface Transaction {
-  id: string;
-  description: string;
-  amount: number;
-  type: 'income' | 'expense';
-  category: string;
-  date: string;
-}
+import { Plus, Minus, Search } from 'lucide-react';
+import { AddTransactionDialog } from '@/components/AddTransactionDialog';
+import { useTransactions } from '@/contexts/TransactionContext';
 
 const Transactions = () => {
-  const [transactions, setTransactions] = useState<Transaction[]>([
-    {
-      id: '1',
-      description: 'Salário mensal',
-      amount: 5500.00,
-      type: 'income',
-      category: 'Salário',
-      date: '2024-01-01',
-    },
-    {
-      id: '2',
-      description: 'Compra no supermercado',
-      amount: 250.00,
-      type: 'expense',
-      category: 'Alimentação',
-      date: '2024-01-02',
-    },
-  ]);
-
+  const { transactions, getTotalIncome, getTotalExpenses, getBalance } = useTransactions();
   const [searchTerm, setSearchTerm] = useState('');
   const [filterCategory, setFilterCategory] = useState('');
-  const { toast } = useToast();
+  const [showAddDialog, setShowAddDialog] = useState(false);
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -59,13 +32,9 @@ const Transactions = () => {
     return matchesSearch && matchesCategory;
   });
 
-  const totalIncome = transactions
-    .filter(t => t.type === 'income')
-    .reduce((sum, t) => sum + t.amount, 0);
-
-  const totalExpenses = transactions
-    .filter(t => t.type === 'expense')
-    .reduce((sum, t) => sum + t.amount, 0);
+  const totalIncome = getTotalIncome();
+  const totalExpenses = getTotalExpenses();
+  const balance = getBalance();
 
   const categories = [...new Set(transactions.map(t => t.category))];
 
@@ -74,9 +43,18 @@ const Transactions = () => {
       <Header />
       
       <main className="container mx-auto px-4 py-6">
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Transações</h1>
-          <p className="text-gray-600">Gerencie suas receitas e despesas</p>
+        <div className="mb-6 flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">Transações</h1>
+            <p className="text-gray-600">Gerencie suas receitas e despesas</p>
+          </div>
+          <Button
+            onClick={() => setShowAddDialog(true)}
+            className="bg-blue-500 hover:bg-blue-600"
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            Nova Transação
+          </Button>
         </div>
 
         {/* Resumo */}
@@ -108,8 +86,8 @@ const Transactions = () => {
               <CardTitle className="text-sm font-medium text-gray-600">Saldo</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className={`text-2xl font-bold ${totalIncome - totalExpenses >= 0 ? 'text-blue-600' : 'text-red-600'}`}>
-                {formatCurrency(totalIncome - totalExpenses)}
+              <div className={`text-2xl font-bold ${balance >= 0 ? 'text-blue-600' : 'text-red-600'}`}>
+                {formatCurrency(balance)}
               </div>
             </CardContent>
           </Card>
@@ -142,7 +120,7 @@ const Transactions = () => {
                     <SelectItem value="">Todas as categorias</SelectItem>
                     {categories.map((category) => (
                       <SelectItem key={category} value={category}>
-                        {category}
+                        <span className="capitalize">{category}</span>
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -159,43 +137,52 @@ const Transactions = () => {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {filteredTransactions.map((transaction) => (
-                <div
-                  key={transaction.id}
-                  className="flex items-center justify-between p-4 rounded-lg bg-white/50 hover:bg-white/80 transition-colors duration-200"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className={`h-10 w-10 rounded-full flex items-center justify-center ${
-                      transaction.type === 'income' 
-                        ? 'bg-green-100' 
-                        : 'bg-red-100'
-                    }`}>
-                      {transaction.type === 'income' ? (
-                        <Plus className="h-4 w-4 text-green-600" />
-                      ) : (
-                        <Minus className="h-4 w-4 text-red-600" />
-                      )}
+              {filteredTransactions.length === 0 ? (
+                <p className="text-center text-gray-500 py-8">Nenhuma transação encontrada.</p>
+              ) : (
+                filteredTransactions.map((transaction) => (
+                  <div
+                    key={transaction.id}
+                    className="flex items-center justify-between p-4 rounded-lg bg-white/50 hover:bg-white/80 transition-colors duration-200"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className={`h-10 w-10 rounded-full flex items-center justify-center ${
+                        transaction.type === 'income' 
+                          ? 'bg-green-100' 
+                          : 'bg-red-100'
+                      }`}>
+                        {transaction.type === 'income' ? (
+                          <Plus className="h-4 w-4 text-green-600" />
+                        ) : (
+                          <Minus className="h-4 w-4 text-red-600" />
+                        )}
+                      </div>
+                      <div>
+                        <p className="font-medium text-gray-900">{transaction.description}</p>
+                        <p className="text-sm text-gray-500 capitalize">{transaction.category}</p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="font-medium text-gray-900">{transaction.description}</p>
-                      <p className="text-sm text-gray-500">{transaction.category}</p>
+                    <div className="text-right">
+                      <p className={`font-semibold ${
+                        transaction.type === 'income' 
+                          ? 'text-green-600' 
+                          : 'text-red-600'
+                      }`}>
+                        {transaction.type === 'income' ? '+' : '-'}{formatCurrency(transaction.amount)}
+                      </p>
+                      <p className="text-sm text-gray-500">{formatDate(transaction.date)}</p>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <p className={`font-semibold ${
-                      transaction.type === 'income' 
-                        ? 'text-green-600' 
-                        : 'text-red-600'
-                    }`}>
-                      {transaction.type === 'income' ? '+' : '-'}{formatCurrency(transaction.amount)}
-                    </p>
-                    <p className="text-sm text-gray-500">{formatDate(transaction.date)}</p>
-                  </div>
-                </div>
-              ))}
+                ))
+              )}
             </div>
           </CardContent>
         </Card>
+
+        <AddTransactionDialog 
+          open={showAddDialog} 
+          onOpenChange={setShowAddDialog} 
+        />
       </main>
     </div>
   );
