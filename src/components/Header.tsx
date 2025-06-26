@@ -34,7 +34,10 @@ export function Header() {
               </SheetTrigger>
               <SheetContent side="left" className="w-72">
                 <div className="flex flex-col gap-4 mt-6">
-                  <h3 className="font-semibold text-lg">OrçaBem</h3>
+                  <div className="flex items-center gap-2">
+                    <img src="/lovable-uploads/b49573e5-35a9-4bd3-bde0-41750762c234.png" alt="OrçaBem" className="w-8 h-8" />
+                    <h3 className="font-semibold text-lg">OrçaBem</h3>
+                  </div>
                   <nav className="flex flex-col gap-2">
                     {menuItems.map((item) => {
                       const Icon = item.icon;
@@ -56,9 +59,7 @@ export function Header() {
             </Sheet>
             
             <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('/')}>
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center">
-                <span className="text-white font-bold text-sm">O</span>
-              </div>
+              <img src="/lovable-uploads/b49573e5-35a9-4bd3-bde0-41750762c234.png" alt="OrçaBem" className="w-8 h-8" />
               <h1 className="text-xl font-bold text-gray-900">OrçaBem</h1>
             </div>
           </div>
@@ -84,7 +85,7 @@ export function Header() {
           <div className="flex items-center gap-3">
             <Button 
               onClick={() => setIsAddDialogOpen(true)}
-              className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
+              className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
             >
               <Plus className="h-4 w-4 mr-2" />
               Adicionar
