@@ -1,8 +1,9 @@
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Plus, Menu, User, Home, CreditCard, PieChart, FileText, Settings } from 'lucide-react';
+import { Plus, Menu, User, Home, PieChart, FileText, Settings, LogOut, UserCircle, Bell } from 'lucide-react';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { AddTransactionDialog } from './AddTransactionDialog';
 import { useNavigate, useLocation } from 'react-router-dom';
 
@@ -13,7 +14,6 @@ export function Header() {
 
   const menuItems = [
     { icon: Home, label: 'Dashboard', path: '/' },
-    { icon: CreditCard, label: 'Transações', path: '/transactions' },
     { icon: PieChart, label: 'Categorias', path: '/categories' },
     { icon: FileText, label: 'Relatórios', path: '/reports' },
     { icon: Settings, label: 'Configurações', path: '/settings' },
@@ -91,9 +91,48 @@ export function Header() {
               Adicionar
             </Button>
             
-            <Button variant="ghost" size="icon">
-              <User className="h-5 w-5" />
-            </Button>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="ghost" size="icon" className="relative">
+                  <User className="h-5 w-5" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-64" align="end">
+                <div className="space-y-4">
+                  <div className="flex items-center gap-3 pb-3 border-b">
+                    <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
+                      <UserCircle className="h-6 w-6 text-blue-600" />
+                    </div>
+                    <div>
+                      <p className="font-medium text-gray-900">João Silva</p>
+                      <p className="text-sm text-gray-500">joao@email.com</p>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Button variant="ghost" className="w-full justify-start" size="sm">
+                      <UserCircle className="mr-2 h-4 w-4" />
+                      Perfil
+                    </Button>
+                    <Button variant="ghost" className="w-full justify-start" size="sm">
+                      <Bell className="mr-2 h-4 w-4" />
+                      Notificações
+                    </Button>
+                    <Button variant="ghost" className="w-full justify-start" size="sm" onClick={() => navigate('/settings')}>
+                      <Settings className="mr-2 h-4 w-4" />
+                      Configurações
+                    </Button>
+                  </div>
+                  
+                  <div className="pt-2 border-t">
+                    <Button variant="ghost" className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50" size="sm">
+                      <LogOut className="mr-2 h-4 w-4" />
+                      Sair
+                    </Button>
+                  </div>
+                </div>
+              </PopoverContent>
+            </Popover>
           </div>
         </div>
       </header>

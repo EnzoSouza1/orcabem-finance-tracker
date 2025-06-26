@@ -1,17 +1,15 @@
 
-import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Plus, Minus } from 'lucide-react';
+import { Plus, Minus, X } from 'lucide-react';
 import { useTransactions } from '@/contexts/TransactionContext';
-import { AllTransactions } from './AllTransactions';
 
-export function RecentTransactions() {
+interface AllTransactionsProps {
+  onClose: () => void;
+}
+
+export function AllTransactions({ onClose }: AllTransactionsProps) {
   const { transactions } = useTransactions();
-  const [showAllTransactions, setShowAllTransactions] = useState(false);
-
-  // Pegar apenas as 5 transações mais recentes
-  const recentTransactions = transactions.slice(0, 5);
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -24,24 +22,21 @@ export function RecentTransactions() {
     return new Date(dateString).toLocaleDateString('pt-BR', {
       day: '2-digit',
       month: '2-digit',
+      year: 'numeric',
     });
   };
-
-  if (showAllTransactions) {
-    return <AllTransactions onClose={() => setShowAllTransactions(false)} />;
-  }
 
   return (
     <Card className="gradient-card">
       <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle className="text-lg font-semibold">Transações Recentes</CardTitle>
-        <Button variant="outline" size="sm" onClick={() => setShowAllTransactions(true)}>
-          Ver todas
+        <CardTitle className="text-lg font-semibold">Todas as Transações</CardTitle>
+        <Button variant="ghost" size="sm" onClick={onClose}>
+          <X className="h-4 w-4" />
         </Button>
       </CardHeader>
       <CardContent>
-        <div className="space-y-3">
-          {recentTransactions.map((transaction) => (
+        <div className="space-y-3 max-h-96 overflow-y-auto">
+          {transactions.map((transaction) => (
             <div
               key={transaction.id}
               className="flex items-center justify-between p-3 rounded-lg bg-white/50 hover:bg-white/80 transition-colors duration-200"
